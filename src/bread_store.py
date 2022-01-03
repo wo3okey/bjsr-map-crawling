@@ -74,10 +74,6 @@ while has_next:
 
             print("page: " + str(cur_page_num))
             for idx in range(0, size):
-                # if place_info.select('.info_item') is None:
-                #     print("add!!!!!!!!!!!")
-                #     continue
-
                 place_name = place_info.select('.head_item > .tit_name > .link_name')[idx].text
                 place_address = place_info.select('.info_item > .addr > p')[idx].text
                 place_tel = place_info.select('.info_item > .contact > span')[idx].text
@@ -97,3 +93,4 @@ while has_next:
         break
     else:
         next_btn.click()
+
