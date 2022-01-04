@@ -1,15 +1,14 @@
-import os
-import re
 import time
-from time import sleep
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+
+import sheet
 
 
 def end_system():
@@ -28,7 +27,6 @@ def set_chrome_driver():
 # set driver
 driver = set_chrome_driver()
 driver.get('https://map.kakao.com/')
-
 
 # set search keyword
 elem = driver.find_element(By.NAME, "q")
@@ -59,6 +57,10 @@ except ElementNotInteractableException:
     end_system()
 
 # search result - around pages
+name_cell_value = set()
+tel_cell_value = set()
+address_cell_value = set()
+
 while has_next:
     for page in range(1, 6):
         try:
@@ -75,8 +77,13 @@ while has_next:
             print("page: " + str(cur_page_num))
             for idx in range(0, size):
                 place_name = place_info.select('.head_item > .tit_name > .link_name')[idx].text
-                place_address = place_info.select('.info_item > .addr > p')[idx].text
+                name_cell_value.add(place_name)
+
                 place_tel = place_info.select('.info_item > .contact > span')[idx].text
+                tel_cell_value.add(place_tel)
+
+                place_address = place_info.select('.info_item > .addr > p')[idx].text
+                address_cell_value.add(place_address)
 
                 print(place_name + " | " + place_address + " | " + place_tel)
 
@@ -89,8 +96,12 @@ while has_next:
 
     has_next = "disabled" not in next_btn.get_attribute("class").split(" ")
     if not has_next:
+        print(">> update excel sheet...")
+        sheet.write_cells("name", name_cell_value)
+        sheet.write_cells("tel", tel_cell_value)
+        sheet.write_cells("address", address_cell_value)
+
         end_system()
         break
     else:
         next_btn.click()
-
